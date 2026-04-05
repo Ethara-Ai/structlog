@@ -33,11 +33,11 @@ from .typing import FilteringBoundLogger
 
 
 def _nop(self: Any, event: str, *args: Any, **kw: Any) -> Any:
-    pass
+    return None
 
 
 async def _anop(self: Any, event: str, *args: Any, **kw: Any) -> Any:
-    pass
+    return None
 
 
 def exception(
@@ -129,7 +129,21 @@ def _make_filtering_bound_logger(min_level: int) -> type[FilteringBoundLogger]:
     def make_method(
         level: int,
     ) -> tuple[Callable[..., Any], Callable[..., Any]]:
-        pass
+        if level < min_level:
+            return _nop, _anop
+
+        name = LEVEL_TO_NAME[level]
+
+        def meth(self: Any, event: str, *args: Any, **kw: Any) -> Any:
+            pass
+
+        async def ameth(self: Any, event: str, *args: Any, **kw: Any) -> Any:
+            pass
+
+        meth.__name__ = name
+        ameth.__name__ = f"a{name}"
+
+        return meth, ameth
 
     def log(self: Any, level: int, event: str, *args: Any, **kw: Any) -> Any:
         pass
