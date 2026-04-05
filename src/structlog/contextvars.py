@@ -50,14 +50,7 @@ def get_contextvars() -> dict[str, Any]:
 
     .. versionadded:: 21.2.0
     """
-    rv = {}
-    ctx = contextvars.copy_context()
-
-    for k in ctx:
-        if k.name.startswith(STRUCTLOG_KEY_PREFIX) and ctx[k] is not Ellipsis:
-            rv[k.name[STRUCTLOG_KEY_PREFIX_LEN:]] = ctx[k]
-
-    return rv
+    pass
 
 
 def get_merged_contextvars(bound_logger: BindableLogger) -> dict[str, Any]:
@@ -67,10 +60,7 @@ def get_merged_contextvars(bound_logger: BindableLogger) -> dict[str, Any]:
 
     .. versionadded:: 21.2.0
     """
-    ctx = get_contextvars()
-    ctx.update(structlog.get_context(bound_logger))
-
-    return ctx
+    pass
 
 
 def merge_contextvars(
@@ -85,13 +75,7 @@ def merge_contextvars(
     .. versionadded:: 20.1.0
     .. versionchanged:: 21.1.0 See toplevel note.
     """
-    ctx = contextvars.copy_context()
-
-    for k in ctx:
-        if k.name.startswith(STRUCTLOG_KEY_PREFIX) and ctx[k] is not Ellipsis:
-            event_dict.setdefault(k.name[STRUCTLOG_KEY_PREFIX_LEN:], ctx[k])
-
-    return event_dict
+    pass
 
 
 def clear_contextvars() -> None:
@@ -104,10 +88,7 @@ def clear_contextvars() -> None:
     .. versionadded:: 20.1.0
     .. versionchanged:: 21.1.0 See toplevel note.
     """
-    ctx = contextvars.copy_context()
-    for k in ctx:
-        if k.name.startswith(STRUCTLOG_KEY_PREFIX):
-            k.set(Ellipsis)
+    pass
 
 
 def bind_contextvars(**kw: Any) -> Mapping[str, contextvars.Token[Any]]:
@@ -125,18 +106,7 @@ def bind_contextvars(**kw: Any) -> Mapping[str, contextvars.Token[Any]]:
     .. versionchanged:: 21.1.0 Return the `contextvars.Token` mapping
         rather than None. See also the toplevel note.
     """
-    rv = {}
-    for k, v in kw.items():
-        structlog_k = f"{STRUCTLOG_KEY_PREFIX}{k}"
-        try:
-            var = _CONTEXT_VARS[structlog_k]
-        except KeyError:
-            var = contextvars.ContextVar(structlog_k, default=Ellipsis)
-            _CONTEXT_VARS[structlog_k] = var
-
-        rv[k] = var.set(v)
-
-    return rv
+    pass
 
 
 def reset_contextvars(**kw: contextvars.Token[Any]) -> None:
@@ -145,10 +115,7 @@ def reset_contextvars(**kw: contextvars.Token[Any]) -> None:
 
     .. versionadded:: 21.1.0
     """
-    for k, v in kw.items():
-        structlog_k = f"{STRUCTLOG_KEY_PREFIX}{k}"
-        var = _CONTEXT_VARS[structlog_k]
-        var.reset(v)
+    pass
 
 
 def unbind_contextvars(*keys: str) -> None:
@@ -161,10 +128,7 @@ def unbind_contextvars(*keys: str) -> None:
     .. versionadded:: 20.1.0
     .. versionchanged:: 21.1.0 See toplevel note.
     """
-    for k in keys:
-        structlog_k = f"{STRUCTLOG_KEY_PREFIX}{k}"
-        if structlog_k in _CONTEXT_VARS:
-            _CONTEXT_VARS[structlog_k].set(Ellipsis)
+    pass
 
 
 @contextlib.contextmanager
@@ -177,12 +141,4 @@ def bound_contextvars(**kw: Any) -> Generator[None, None, None]:
 
     .. versionadded:: 21.4.0
     """
-    context = get_contextvars()
-    saved = {k: context[k] for k in context.keys() & kw.keys()}
-
-    bind_contextvars(**kw)
-    try:
-        yield
-    finally:
-        unbind_contextvars(*kw.keys())
-        bind_contextvars(**saved)
+    pass

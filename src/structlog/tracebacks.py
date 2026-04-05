@@ -112,10 +112,7 @@ class Trace:
 
 def safe_str(_object: Any) -> str:
     """Don't allow exceptions from __str__ to propagate."""
-    try:
-        return str(_object)
-    except Exception as error:  # noqa: BLE001
-        return f"<str-error {str(error)!r}>"
+    pass
 
 
 def to_repr(
@@ -152,32 +149,7 @@ def to_repr(
        is available.  Call :func:`repr()` on strings in fallback
        implementation.
     """
-    if use_rich and rich is not None:
-        # Let rich render the repr if it is available.
-        # It produces much better results for containers and dataclasses/attrs.
-        obj_repr = rich.pretty.traverse(
-            obj, max_length=max_length, max_string=max_string
-        ).render()
-    else:
-        # Generate a (truncated) repr if rich is not available.
-        # Handle str/bytes differently to get better results for truncated
-        # representations.  Also catch all errors, similarly to "safe_str()".
-        try:
-            if isinstance(obj, (str, bytes)):
-                if max_string is not None and len(obj) > max_string:
-                    truncated = len(obj) - max_string
-                    obj_repr = f"{obj[:max_string]!r}+{truncated}"
-                else:
-                    obj_repr = repr(obj)
-            else:
-                obj_repr = repr(obj)
-                if max_string is not None and len(obj_repr) > max_string:
-                    truncated = len(obj_repr) - max_string
-                    obj_repr = f"{obj_repr[:max_string]!r}+{truncated}"
-        except Exception as error:  # noqa: BLE001
-            obj_repr = f"<repr-error {str(error)!r}>"
-
-    return obj_repr
+    pass
 
 
 def extract(
@@ -241,127 +213,7 @@ def extract(
     .. versionchanged:: 25.5.0
        Handle loops in exception cause chain.
     """
-
-    stacks: list[Stack] = []
-    is_cause = False
-
-    if _seen is None:
-        _seen = set()
-
-    while True:
-        exc_id = id(exc_value)
-        if exc_id in _seen:
-            break
-        _seen.add(exc_id)
-
-        stack = Stack(
-            exc_type=safe_str(exc_type.__name__),
-            exc_value=safe_str(exc_value),
-            exc_notes=[
-                safe_str(note) for note in getattr(exc_value, "__notes__", ())
-            ],
-            is_cause=is_cause,
-        )
-
-        if sys.version_info >= (3, 11):
-            if isinstance(exc_value, (BaseExceptionGroup, ExceptionGroup)):  # noqa: F821
-                stack.is_group = True
-                for exception in exc_value.exceptions:
-                    stack.exceptions.append(
-                        extract(
-                            type(exception),
-                            exception,
-                            exception.__traceback__,
-                            show_locals=show_locals,
-                            locals_max_length=locals_max_length,
-                            locals_max_string=locals_max_string,
-                            locals_hide_dunder=locals_hide_dunder,
-                            locals_hide_sunder=locals_hide_sunder,
-                            use_rich=use_rich,
-                            _seen=_seen,
-                        )
-                    )
-
-        if isinstance(exc_value, SyntaxError):
-            stack.syntax_error = SyntaxError_(
-                offset=exc_value.offset or 0,
-                filename=exc_value.filename or "?",
-                lineno=exc_value.lineno or 0,
-                line=exc_value.text or "",
-                msg=exc_value.msg,
-            )
-
-        stacks.append(stack)
-        append = stack.frames.append  # pylint: disable=no-member
-
-        def get_locals(
-            iter_locals: Iterable[tuple[str, object]],
-        ) -> Iterable[tuple[str, object]]:
-            """Extract locals from an iterator of key pairs."""
-            if not (locals_hide_dunder or locals_hide_sunder):
-                yield from iter_locals
-                return
-            for key, value in iter_locals:
-                if locals_hide_dunder and key.startswith("__"):
-                    continue
-                if locals_hide_sunder and key.startswith("_"):
-                    continue
-                yield key, value
-
-        for frame_summary, line_no in walk_tb(traceback):
-            filename = frame_summary.f_code.co_filename
-            if filename and not filename.startswith("<"):
-                filename = os.path.abspath(filename)
-            # Rich has this, but we are not rich and like to keep all frames:
-            # if frame_summary.f_locals.get("_rich_traceback_omit", False):
-            #     continue  # noqa: ERA001
-
-            frame = Frame(
-                filename=filename or "?",
-                lineno=line_no,
-                name=frame_summary.f_code.co_name,
-                locals=(
-                    {
-                        key: to_repr(
-                            value,
-                            max_length=locals_max_length,
-                            max_string=locals_max_string,
-                            use_rich=use_rich,
-                        )
-                        for key, value in get_locals(
-                            frame_summary.f_locals.items()
-                        )
-                    }
-                    if show_locals
-                    else None
-                ),
-            )
-            append(frame)
-
-        cause = getattr(exc_value, "__cause__", None)
-        if cause and cause.__traceback__:
-            exc_type = cause.__class__
-            exc_value = cause
-            traceback = cause.__traceback__
-            is_cause = True
-            continue
-
-        cause = exc_value.__context__
-        if (
-            cause
-            and cause.__traceback__
-            and not getattr(exc_value, "__suppress_context__", False)
-        ):
-            exc_type = cause.__class__
-            exc_value = cause
-            traceback = cause.__traceback__
-            is_cause = False
-            continue
-
-        # No cover, code is reached but coverage doesn't recognize it.
-        break  # pragma: no cover
-
-    return Trace(stacks=stacks)
+    pass
 
 
 class ExceptionDictTransformer:
@@ -499,18 +351,4 @@ class ExceptionDictTransformer:
         return self._as_dict(trace)
 
     def _as_dict(self, trace: Trace) -> list[dict[str, Any]]:
-        stack_dicts = []
-        for stack in trace.stacks:
-            stack_dict = asdict(stack)
-            for frame_dict in stack_dict["frames"]:
-                if frame_dict["locals"] is None or any(
-                    frame_dict["filename"].startswith(path)
-                    for path in self.suppress
-                ):
-                    del frame_dict["locals"]
-            if stack.is_group:
-                stack_dict["exceptions"] = [
-                    self._as_dict(t) for t in stack.exceptions
-                ]
-            stack_dicts.append(stack_dict)
-        return stack_dicts
+        pass

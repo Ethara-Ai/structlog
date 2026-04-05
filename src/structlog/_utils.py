@@ -18,13 +18,4 @@ from typing import Any
 def get_processname() -> str:
     # based on code from
     # https://github.com/python/cpython/blob/313f92a57bc3887026ec16adb536bb2b7580ce47/Lib/logging/__init__.py#L342-L352
-    processname = "n/a"
-    mp: Any = sys.modules.get("multiprocessing")
-    if mp is not None:
-        # Errors may occur if multiprocessing has not finished loading
-        # yet - e.g. if a custom import hook causes third-party code
-        # to run when multiprocessing calls import.
-        with suppress(Exception):
-            processname = mp.current_process().name
-
-    return processname
+    pass

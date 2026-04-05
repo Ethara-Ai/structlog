@@ -102,10 +102,7 @@ class KeyValueRenderer:
         else:
 
             def _repr(inst: Any) -> str:
-                if isinstance(inst, str):
-                    return inst
-
-                return repr(inst)
+                pass
 
             self._repr = _repr
 
@@ -202,44 +199,7 @@ def _items_sorter(
 
     See `KeyValueRenderer` for an explanation of the parameters.
     """
-    # Use an optimized version for each case.
-    if key_order and sort_keys:
-
-        def ordered_items(event_dict: EventDict) -> list[tuple[str, Any]]:
-            items = []
-            for key in key_order:
-                value = event_dict.pop(key, None)
-                if value is not None or not drop_missing:
-                    items.append((key, value))
-
-            items += sorted(event_dict.items())
-
-            return items
-
-    elif key_order:
-
-        def ordered_items(event_dict: EventDict) -> list[tuple[str, Any]]:
-            items = []
-            for key in key_order:
-                value = event_dict.pop(key, None)
-                if value is not None or not drop_missing:
-                    items.append((key, value))
-
-            items += event_dict.items()
-
-            return items
-
-    elif sort_keys:
-
-        def ordered_items(event_dict: EventDict) -> list[tuple[str, Any]]:
-            return sorted(event_dict.items())
-
-    else:
-        ordered_items = operator.methodcaller(  # type: ignore[assignment]
-            "items"
-        )
-
-    return ordered_items
+    pass
 
 
 class UnicodeEncoder:
@@ -355,16 +315,7 @@ def _json_fallback_handler(obj: Any) -> Any:
     """
     Serialize custom datatypes and pass the rest to __structlog__ & repr().
     """
-    # circular imports :(
-    from structlog.threadlocal import _ThreadLocalDictWrapper
-
-    if isinstance(obj, _ThreadLocalDictWrapper):
-        return obj._dict
-
-    try:
-        return obj.__structlog__()
-    except AttributeError:
-        return repr(obj)
+    pass
 
 
 class ExceptionRenderer:
@@ -509,60 +460,7 @@ def _make_stamper(
     """
     Create a stamper function.
     """
-    if fmt is None and not utc:
-        msg = "UNIX timestamps are always UTC."
-        raise ValueError(msg)
-
-    now: Callable[[], datetime.datetime]
-
-    if utc:
-
-        def now() -> datetime.datetime:
-            return datetime.datetime.now(tz=datetime.timezone.utc)
-
-    else:
-
-        def now() -> datetime.datetime:
-            # We don't need the TZ for our own formatting. We add it only for
-            # user-defined formats later.
-            return datetime.datetime.now()  # noqa: DTZ005
-
-    if fmt is None:
-
-        def stamper_unix(event_dict: EventDict) -> EventDict:
-            event_dict[key] = time.time()
-
-            return event_dict
-
-        return stamper_unix
-
-    if fmt.upper() == "ISO":
-
-        def stamper_iso_local(event_dict: EventDict) -> EventDict:
-            event_dict[key] = now().isoformat()
-            return event_dict
-
-        def stamper_iso_utc(event_dict: EventDict) -> EventDict:
-            event_dict[key] = now().isoformat().replace("+00:00", "Z")
-            return event_dict
-
-        if utc:
-            return stamper_iso_utc
-
-        return stamper_iso_local
-
-    def stamper_fmt_local(event_dict: EventDict) -> EventDict:
-        event_dict[key] = now().astimezone().strftime(fmt)
-        return event_dict
-
-    def stamper_fmt_utc(event_dict: EventDict) -> EventDict:
-        event_dict[key] = now().strftime(fmt)
-        return event_dict
-
-    if utc:
-        return stamper_fmt_utc
-
-    return stamper_fmt_local
+    pass
 
 
 class MaybeTimeStamper:
@@ -603,23 +501,7 @@ def _figure_out_exc_info(v: Any) -> ExcInfo | None:
     Return ``None`` if *v* does not represent an exception or if there is no
     current exception.
     """
-    if isinstance(v, BaseException):
-        return (v.__class__, v, v.__traceback__)
-
-    if isinstance(v, tuple) and len(v) == 3:
-        has_type = isinstance(v[0], type) and issubclass(v[0], BaseException)
-        has_exc = isinstance(v[1], BaseException)
-        has_tb = v[2] is None or isinstance(v[2], TracebackType)
-        if has_type and has_exc and has_tb:
-            return v
-
-    if v:
-        result = sys.exc_info()
-        if result == (None, None, None):
-            return None
-        return cast(ExcInfo, result)
-
-    return None
+    pass
 
 
 class ExceptionPrettyPrinter:
@@ -759,43 +641,43 @@ class CallsiteParameter(enum.Enum):
 
 
 def _get_callsite_pathname(module: str, frame: FrameType) -> Any:
-    return frame.f_code.co_filename
+    pass
 
 
 def _get_callsite_filename(module: str, frame: FrameType) -> Any:
-    return os.path.basename(frame.f_code.co_filename)
+    pass
 
 
 def _get_callsite_module(module: str, frame: FrameType) -> Any:
-    return os.path.splitext(os.path.basename(frame.f_code.co_filename))[0]
+    pass
 
 
 def _get_callsite_func_name(module: str, frame: FrameType) -> Any:
-    return frame.f_code.co_name
+    pass
 
 
 def _get_callsite_qual_name(module: str, frame: FrameType) -> Any:
-    return frame.f_code.co_qualname  # will crash on Python <3.11
+    pass
 
 
 def _get_callsite_lineno(module: str, frame: FrameType) -> Any:
-    return frame.f_lineno
+    pass
 
 
 def _get_callsite_thread(module: str, frame: FrameType) -> Any:
-    return threading.get_ident()
+    pass
 
 
 def _get_callsite_thread_name(module: str, frame: FrameType) -> Any:
-    return threading.current_thread().name
+    pass
 
 
 def _get_callsite_process(module: str, frame: FrameType) -> Any:
-    return os.getpid()
+    pass
 
 
 def _get_callsite_process_name(module: str, frame: FrameType) -> Any:
-    return get_processname()
+    pass
 
 
 class CallsiteParameterAdder:

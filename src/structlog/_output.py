@@ -22,12 +22,7 @@ WRITE_LOCKS: dict[IO[Any], threading.Lock] = {}
 
 
 def _get_lock_for_file(file: IO[Any]) -> threading.Lock:
-    lock = WRITE_LOCKS.get(file)
-    if lock is None:
-        lock = threading.Lock()
-        WRITE_LOCKS[file] = lock
-
-    return lock
+    pass
 
 
 class PrintLogger:
@@ -105,9 +100,7 @@ class PrintLogger:
         """
         Print *message*.
         """
-        f = self._file if self._file is not stdout else None
-        with self._lock:
-            print(message, file=f, flush=True)
+        pass
 
     log = debug = info = warn = warning = msg
     fatal = failure = err = error = critical = exception = msg
@@ -213,9 +206,7 @@ class WriteLogger:
         """
         Write and flush *message*.
         """
-        with self._lock:
-            self._write(message + "\n")
-            self._flush()
+        pass
 
     log = debug = info = warn = warning = msg
     fatal = failure = err = error = critical = exception = msg
@@ -317,9 +308,7 @@ class BytesLogger:
         """
         Write *message*.
         """
-        with self._lock:
-            self._write(message + b"\n")
-            self._flush()
+        pass
 
     log = debug = info = warn = warning = msg
     fatal = failure = err = error = critical = exception = msg

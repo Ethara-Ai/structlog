@@ -75,11 +75,7 @@ class BoundLoggerBase:
         """
         Return a new logger with *new_values* added to the existing ones.
         """
-        return self.__class__(
-            self._logger,
-            self._processors,
-            self._context.__class__(self._context, **new_values),
-        )
+        pass
 
     def unbind(self, *keys: str) -> Self:
         """
@@ -88,11 +84,7 @@ class BoundLoggerBase:
         Raises:
             KeyError: If the key is not part of the context.
         """
-        bl = self.bind()
-        for key in keys:
-            del bl._context[key]
-
-        return bl
+        pass
 
     def try_unbind(self, *keys: str) -> Self:
         """
@@ -100,11 +92,7 @@ class BoundLoggerBase:
 
         .. versionadded:: 18.2.0
         """
-        bl = self.bind()
-        for key in keys:
-            bl._context.pop(key, None)
-
-        return bl
+        pass
 
     def new(self, **new_values: Any) -> Self:
         """
@@ -114,9 +102,7 @@ class BoundLoggerBase:
         those wrapped by `structlog.threadlocal.wrap_dict` when threads
         are reused.
         """
-        self._context.clear()
-
-        return self.bind(**new_values)
+        pass
 
     # Helper methods for sub-classing concrete BoundLoggers.
 
@@ -163,32 +149,7 @@ class BoundLoggerBase:
         .. versionchanged:: 21.2.0
             Allow final processor to return a `bytearray`.
         """
-        # We're typing it as Any, because processors can return more than an
-        # EventDict.
-        event_dict: Any = self._context.copy()
-        event_dict.update(**event_kw)
-
-        if event is not None:
-            event_dict["event"] = event
-        for proc in self._processors:
-            event_dict = proc(self._logger, method_name, event_dict)
-
-        if isinstance(event_dict, (str, bytes, bytearray)):
-            return (event_dict,), {}
-
-        if isinstance(event_dict, tuple):
-            # In this case we assume that the last processor returned a tuple
-            # of ``(args, kwargs)`` and pass it right through.
-            return event_dict
-
-        if isinstance(event_dict, dict):
-            return (), event_dict
-
-        msg = (
-            "Last processor didn't return an appropriate value.  "
-            "Valid return values are a dict, a tuple of (args, kwargs), bytes, or a str."
-        )
-        raise ValueError(msg)
+        pass
 
     def _proxy_to_logger(
         self, method_name: str, event: str | None = None, **event_kw: Any
@@ -219,11 +180,7 @@ class BoundLoggerBase:
 
             See also `custom-wrappers`.
         """
-        try:
-            args, kw = self._process_event(method_name, event, event_kw)
-            return getattr(self._logger, method_name)(*args, **kw)
-        except DropEvent:
-            return None
+        pass
 
 
 def get_context(bound_logger: BindableLogger) -> Context:
@@ -241,5 +198,4 @@ def get_context(bound_logger: BindableLogger) -> Context:
 
     .. versionadded:: 20.2.0
     """
-    # This probably will get more complicated in the future.
-    return bound_logger._context
+    pass

@@ -48,13 +48,13 @@ class BoundLogger(BoundLoggerBase):
         """
         Process event and call ``log.msg()`` with the result.
         """
-        return self._proxy_to_logger("msg", event, **kw)
+        pass
 
     def err(self, event: str | None = None, **kw: Any) -> Any:
         """
         Process event and call ``log.err()`` with the result.
         """
-        return self._proxy_to_logger("err", event, **kw)
+        pass
 
 
 class LoggerFactory:
@@ -88,34 +88,7 @@ def _extractStuffAndWhy(eventDict: EventDict) -> tuple[Any, Any, EventDict]:
 
     **Modifies** *eventDict*!
     """
-    _stuff = eventDict.pop("_stuff", None)
-    _why = eventDict.pop("_why", None)
-    event = eventDict.pop("event", None)
-
-    if isinstance(_stuff, _FAIL_TYPES) and isinstance(event, _FAIL_TYPES):
-        raise ValueError("Both _stuff and event contain an Exception/Failure.")
-
-    # `log.err('event', _why='alsoEvent')` is ambiguous.
-    if _why and isinstance(event, str):
-        raise ValueError("Both `_why` and `event` supplied.")
-
-    # Two failures are ambiguous too.
-    if not isinstance(_stuff, _FAIL_TYPES) and isinstance(event, _FAIL_TYPES):
-        _why = _why or "error"
-        _stuff = event
-
-    if isinstance(event, str):
-        _why = event
-
-    if not _stuff and sys.exc_info() != (None, None, None):
-        _stuff = Failure()  # type: ignore[no-untyped-call]
-
-    # Either we used the error ourselves or the user supplied one for
-    # formatting.  Avoid log.err() to dump another traceback into the log.
-    if isinstance(_stuff, BaseException) and not isinstance(_stuff, Failure):
-        _stuff = Failure(_stuff)  # type: ignore[no-untyped-call]
-
-    return _stuff, _why, eventDict
+    pass
 
 
 class ReprWrapper:
@@ -279,7 +252,7 @@ def plainJSONStdOutLogger() -> JSONLogObserverWrapper:
 
     .. versionadded:: 0.2.0
     """
-    return JSONLogObserverWrapper(PlainFileLogObserver(sys.stdout))
+    pass
 
 
 class EventAdapter:

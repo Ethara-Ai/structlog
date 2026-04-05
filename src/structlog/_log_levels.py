@@ -48,14 +48,7 @@ _NAME_TO_LEVEL = NAME_TO_LEVEL
 
 def map_method_name(method_name: str) -> str:
     # warn is just a deprecated alias in the stdlib.
-    if method_name == "warn":
-        return "warning"
-
-    # Calling exception("") is the same as error("", exc_info=True)
-    if method_name == "exception":
-        return "error"
-
-    return method_name
+    pass
 
 
 def add_log_level(
@@ -75,7 +68,4 @@ def add_log_level(
     .. versionchanged:: 24.1.0
        Added mapping from "exception" to "error"
     """
-
-    event_dict["level"] = map_method_name(method_name)
-
-    return event_dict
+    pass

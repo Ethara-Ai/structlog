@@ -51,31 +51,7 @@ def _deprecated() -> None:
     """
     Raise a warning with best-effort stacklevel adjustment.
     """
-    callsite = ""
-
-    with contextlib.suppress(Exception):
-        f = sys._getframe()
-        callsite = f.f_back.f_back.f_globals[  # type: ignore[union-attr]
-            "__name__"
-        ]
-
-    # Avoid double warnings if TL functions call themselves.
-    if callsite == "structlog.threadlocal":
-        return
-
-    stacklevel = 3
-    # If a function is used as a decorator, we need to add two stack levels.
-    # This logic will probably break eventually, but it's not worth any more
-    # complexity.
-    if callsite == "contextlib":
-        stacklevel += 2
-
-    warnings.warn(
-        "`structlog.threadlocal` is deprecated, please use "
-        "`structlog.contextvars` instead.",
-        DeprecationWarning,
-        stacklevel=stacklevel,
-    )
+    pass
 
 
 def wrap_dict(dict_class: type[Context]) -> type[Context]:
@@ -89,14 +65,7 @@ def wrap_dict(dict_class: type[Context]) -> type[Context]:
 
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    Wrapped = type(
-        "WrappedDict-" + str(uuid.uuid4()), (_ThreadLocalDictWrapper,), {}
-    )
-    Wrapped._tl = ThreadLocal()  # type: ignore[attr-defined]
-    Wrapped._dict_class = dict_class  # type: ignore[attr-defined]
-
-    return Wrapped
+    pass
 
 
 TLLogger = TypeVar("TLLogger", bound=BindableLogger)
@@ -115,24 +84,7 @@ def as_immutable(logger: TLLogger) -> TLLogger:
 
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    if isinstance(logger, BoundLoggerLazyProxy):
-        logger = logger.bind()
-
-    try:
-        ctx = logger._context._tl.dict_.__class__(  # type: ignore[attr-defined]
-            logger._context._dict  # type: ignore[attr-defined]
-        )
-        bl = logger.__class__(
-            logger._logger,  # type: ignore[attr-defined, call-arg]
-            processors=logger._processors,  # type: ignore[attr-defined]
-            context={},
-        )
-        bl._context = ctx  # type: ignore[misc]
-
-        return bl
-    except AttributeError:
-        return logger
+    pass
 
 
 @contextlib.contextmanager
@@ -147,16 +99,7 @@ def tmp_bind(
 
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    if isinstance(logger, BoundLoggerLazyProxy):
-        logger = logger.bind()
-
-    saved = as_immutable(logger)._context
-    try:
-        yield logger.bind(**tmp_values)
-    finally:
-        logger._context.clear()
-        logger._context.update(saved)
+    pass
 
 
 class _ThreadLocalDictWrapper:
@@ -190,12 +133,7 @@ class _ThreadLocalDictWrapper:
         """
         Return or create and return the current context.
         """
-        try:
-            return self.__class__._tl.dict_
-        except AttributeError:
-            self.__class__._tl.dict_ = self.__class__._dict_class()
-
-            return self.__class__._tl.dict_
+        pass
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}({self._dict!r})>"
@@ -235,8 +173,7 @@ def get_threadlocal() -> Context:
     .. versionadded:: 21.2.0
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    return _get_context().copy()
+    pass
 
 
 def get_merged_threadlocal(bound_logger: BindableLogger) -> Context:
@@ -247,11 +184,7 @@ def get_merged_threadlocal(bound_logger: BindableLogger) -> Context:
     .. versionadded:: 21.2.0
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    ctx = _get_context().copy()
-    ctx.update(structlog.get_context(bound_logger))
-
-    return ctx
+    pass
 
 
 def merge_threadlocal(
@@ -271,11 +204,7 @@ def merge_threadlocal(
 
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    context = _get_context().copy()
-    context.update(event_dict)
-
-    return context
+    pass
 
 
 # Alias that shouldn't be used anymore.
@@ -292,8 +221,7 @@ def clear_threadlocal() -> None:
     .. versionadded:: 19.2.0
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    _CONTEXT.context = {}
+    pass
 
 
 def bind_threadlocal(**kw: Any) -> None:
@@ -306,8 +234,7 @@ def bind_threadlocal(**kw: Any) -> None:
     .. versionadded:: 19.2.0
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    _get_context().update(kw)
+    pass
 
 
 def unbind_threadlocal(*keys: str) -> None:
@@ -317,10 +244,7 @@ def unbind_threadlocal(*keys: str) -> None:
     .. versionadded:: 20.1.0
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    context = _get_context()
-    for key in keys:
-        context.pop(key, None)
+    pass
 
 
 @contextlib.contextmanager
@@ -334,22 +258,8 @@ def bound_threadlocal(**kw: Any) -> Generator[None, None, None]:
     .. versionadded:: 21.4.0
     .. deprecated:: 22.1.0
     """
-    _deprecated()
-    context = get_threadlocal()
-    saved = {k: context[k] for k in context.keys() & kw.keys()}
-
-    bind_threadlocal(**kw)
-    try:
-        yield
-    finally:
-        unbind_threadlocal(*kw.keys())
-        bind_threadlocal(**saved)
+    pass
 
 
 def _get_context() -> Context:
-    try:
-        return _CONTEXT.context
-    except AttributeError:
-        _CONTEXT.context = {}
-
-        return _CONTEXT.context
+    pass

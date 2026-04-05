@@ -83,21 +83,7 @@ if _IS_WINDOWS:  # pragma: no cover
             SystemError:
                 When colorama is not installed.
         """
-        # On Windows, we can't do colorful output without colorama.
-        if colorama is None:
-            raise SystemError(
-                _MISSING.format(
-                    who=who + " with `colors=True` on Windows",
-                    package="colorama",
-                )
-            )
-        # Colorama must be init'd on Windows, but must NOT be
-        # init'd on other OSes, because it can break colors.
-        if force_colors:
-            colorama.deinit()
-            colorama.init(strip=False)
-        else:
-            colorama.init()
+        pass
 else:
 
     def _init_terminal(who: str, force_colors: bool) -> None:
@@ -110,9 +96,7 @@ def _pad(s: str, length: int) -> str:
     """
     Pads *s* to length *length*.
     """
-    missing = length - len(s)
-
-    return s + " " * (max(0, missing))
+    pass
 
 
 if colorama is not None:
@@ -386,7 +370,7 @@ def plain_traceback(sio: TextIO, exc_info: ExcInfo) -> None:
 
     .. versionadded:: 21.2.0
     """
-    sio.write("\n" + _format_exception(exc_info))
+    pass
 
 
 @dataclass
@@ -498,13 +482,7 @@ def better_traceback(sio: TextIO, exc_info: ExcInfo) -> None:
        *better-exceptions* support is deprecated and will be removed in a
        future release. Use Rich instead.
     """
-    warnings.warn(
-        "better-exceptions support is deprecated and will be removed "
-        "in a future release. Use Rich instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    sio.write("\n" + "".join(better_exceptions.format_exception(*exc_info)))
+    pass
 
 
 if rich is not None:
@@ -694,9 +672,7 @@ class ConsoleRenderer:
         to_warn = []
 
         def add_meaningless_arg(arg: str) -> None:
-            to_warn.append(
-                f"The `{arg}` argument is ignored when passing `columns`.",
-            )
+            pass
 
         if pad_event_to != _EVENT_WIDTH:
             add_meaningless_arg("pad_event_to")
@@ -739,20 +715,7 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        from ._config import get_config
-
-        cr = None
-        for p in get_config()["processors"]:
-            if isinstance(p, ConsoleRenderer):
-                if cr is not None:
-                    raise MultipleConsoleRenderersConfiguredError
-
-                cr = p
-
-        if cr is None:
-            raise NoConsoleRendererConfiguredError
-
-        return cr
+        pass
 
     @classmethod
     def get_default_column_styles(
@@ -781,12 +744,7 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        if not colors:
-            return _plain_styles
-
-        _init_terminal(cls.__name__, force_colors)
-
-        return _colorful_styles
+        pass
 
     @staticmethod
     def get_default_level_styles(colors: bool = True) -> dict[str, str]:
@@ -806,18 +764,7 @@ class ConsoleRenderer:
                 Whether to use colorful styles. This must match the *colors*
                 parameter to `ConsoleRenderer`. Default: `True`.
         """
-        styles: ColumnStyles
-        styles = _colorful_styles if colors else _plain_styles
-        return {
-            "critical": styles.level_critical,
-            "exception": styles.level_exception,
-            "error": styles.level_error,
-            "warn": styles.level_warn,
-            "warning": styles.level_warn,
-            "info": styles.level_info,
-            "debug": styles.level_debug,
-            "notset": styles.level_notset,
-        }
+        pass
 
     def _configure_columns(self) -> None:
         """
@@ -827,77 +774,14 @@ class ConsoleRenderer:
         Overwrite existing columns settings, regardless of whether they were
         explicitly passed by the user or derived by us.
         """
-        level_to_color = self._level_styles.copy()
-
-        for key in level_to_color:
-            level_to_color[key] += self._styles.bright
-        self._longest_level = len(max(level_to_color.keys(), key=len))
-
-        self._default_column_formatter = KeyValueColumnFormatter(
-            self._styles.kv_key,
-            self._styles.kv_value,
-            self._styles.reset,
-            value_repr=self._repr,
-            width=0,
-        )
-
-        logger_name_formatter = KeyValueColumnFormatter(
-            key_style=None,
-            value_style=self._styles.bright + self._styles.logger_name,
-            reset_style=self._styles.reset,
-            value_repr=str,
-            prefix="[",
-            postfix="]",
-        )
-
-        level_width = 0 if not self._pad_level else None
-
-        self._columns = [
-            Column(
-                self._timestamp_key,
-                KeyValueColumnFormatter(
-                    key_style=None,
-                    value_style=self._styles.timestamp,
-                    reset_style=self._styles.reset,
-                    value_repr=str,
-                ),
-            ),
-            Column(
-                "level",
-                LogLevelColumnFormatter(
-                    level_to_color,
-                    reset_style=self._styles.reset,
-                    width=level_width,
-                ),
-            ),
-            Column(
-                self._event_key,
-                KeyValueColumnFormatter(
-                    key_style=None,
-                    value_style=self._styles.bright,
-                    reset_style=self._styles.reset,
-                    value_repr=str,
-                    width=self._pad_event_to,
-                ),
-            ),
-            Column("logger", logger_name_formatter),
-            Column("logger_name", logger_name_formatter),
-        ]
+        pass
 
     def _repr(self, val: Any) -> str:
         """
         Determine representation of *val* depending on its type &
         self._repr_native_str.
         """
-        if self._repr_native_str is True:
-            return repr(val)
-
-        if isinstance(val, str):
-            if set(val) & {" ", "\t", "=", "\r", "\n", '"', "'"}:
-                return repr(val)
-            return val
-
-        return repr(val)
+        pass
 
     def __call__(
         self, logger: WrappedLogger, name: str, event_dict: EventDict
@@ -938,14 +822,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._exception_formatter
+        pass
 
     @exception_formatter.setter
     def exception_formatter(self, value: ExceptionRenderer) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._exception_formatter = value
+        pass
 
     @property
     def sort_keys(self) -> bool:
@@ -954,15 +838,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._sort_keys
+        pass
 
     @sort_keys.setter
     def sort_keys(self, value: bool) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        # _sort_keys is a format-time setting, so we can just set it directly.
-        self._sort_keys = value
+        pass
 
     @property
     def columns(self) -> list[Column]:
@@ -986,23 +869,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return [Column("", self._default_column_formatter), *self._columns]
+        pass
 
     @columns.setter
     def columns(self, value: list[Column]) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        defaults = [col for col in value if col.key == ""]
-        if not defaults:
-            raise ValueError(
-                "Must pass a default column formatter (a column with `key=''`)."
-            )
-        if len(defaults) > 1:
-            raise ValueError("Only one default column formatter allowed.")
-
-        self._default_column_formatter = defaults[0].formatter
-        self._columns = [col for col in value if col.key]
+        pass
 
     @property
     def colors(self) -> bool:
@@ -1015,20 +889,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._colors
+        pass
 
     @colors.setter
     def colors(self, value: bool) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._colors = value
-        self._styles = self.get_default_column_styles(
-            value, self._force_colors
-        )
-        self._level_styles = self.get_default_level_styles(value)
-
-        self._configure_columns()
+        pass
 
     @property
     def force_colors(self) -> bool:
@@ -1041,18 +909,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._force_colors
+        pass
 
     @force_colors.setter
     def force_colors(self, value: bool) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._force_colors = value
-        self._styles = self.get_default_column_styles(self._colors, value)
-        self._level_styles = self.get_default_level_styles(self._colors)
-
-        self._configure_columns()
+        pass
 
     @property
     def level_styles(self) -> dict[str, str]:
@@ -1065,19 +929,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._level_styles
+        pass
 
     @level_styles.setter
     def level_styles(self, value: dict[str, str] | None) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._level_styles = (
-            self.get_default_level_styles(self._colors)
-            if value is None
-            else value
-        )
-        self._configure_columns()
+        pass
 
     @property
     def pad_level(self) -> bool:
@@ -1089,15 +948,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._pad_level
+        pass
 
     @pad_level.setter
     def pad_level(self, value: bool) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._pad_level = value
-        self._configure_columns()
+        pass
 
     @property
     def pad_event_to(self) -> int:
@@ -1108,15 +966,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._pad_event_to
+        pass
 
     @pad_event_to.setter
     def pad_event_to(self, value: int) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._pad_event_to = value
-        self._configure_columns()
+        pass
 
     @property
     def event_key(self) -> str:
@@ -1127,15 +984,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._event_key
+        pass
 
     @event_key.setter
     def event_key(self, value: str) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._event_key = value
-        self._configure_columns()
+        pass
 
     @property
     def timestamp_key(self) -> str:
@@ -1146,15 +1002,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._timestamp_key
+        pass
 
     @timestamp_key.setter
     def timestamp_key(self, value: str) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._timestamp_key = value
-        self._configure_columns()
+        pass
 
     @property
     def repr_native_str(self) -> bool:
@@ -1163,14 +1018,14 @@ class ConsoleRenderer:
 
         .. versionadded:: 25.5.0
         """
-        return self._repr_native_str
+        pass
 
     @repr_native_str.setter
     def repr_native_str(self, value: bool) -> None:
         """
         .. versionadded:: 25.5.0
         """
-        self._repr_native_str = value
+        pass
 
 
 _SENTINEL = object()
@@ -1186,12 +1041,4 @@ def set_exc_info(
 
     .. versionadded:: 19.2.0
     """
-    if (
-        method_name != "exception"
-        or event_dict.get("exc_info", _SENTINEL) is not _SENTINEL
-    ):
-        return event_dict
-
-    event_dict["exc_info"] = True
-
-    return event_dict
+    pass

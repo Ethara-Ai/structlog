@@ -89,7 +89,7 @@ def is_configured() -> bool:
 
     .. versionadded: 18.1.0
     """
-    return _CONFIG.is_configured
+    pass
 
 
 def get_config() -> dict[str, Any]:
@@ -102,13 +102,7 @@ def get_config() -> dict[str, Any]:
 
     .. versionadded: 18.1.0
     """
-    return {
-        "processors": _CONFIG.default_processors,
-        "context_class": _CONFIG.default_context_class,
-        "wrapper_class": _CONFIG.default_wrapper_class,
-        "logger_factory": _CONFIG.logger_factory,
-        "cache_logger_on_first_use": _CONFIG.cache_logger_on_first_use,
-    }
+    pass
 
 
 def get_logger(*args: Any, **initial_values: Any) -> Any:
@@ -140,7 +134,7 @@ def get_logger(*args: Any, **initial_values: Any) -> Any:
 
     .. versionadded:: 0.4.0 *args*
     """
-    return wrap_logger(None, logger_factory_args=args, **initial_values)
+    pass
 
 
 getLogger = get_logger  # noqa: N816
@@ -188,15 +182,7 @@ def wrap_logger(
 
     .. versionadded:: 0.4.0 *logger_factory_args*
     """
-    return BoundLoggerLazyProxy(
-        logger,
-        wrapper_class=wrapper_class,
-        processors=processors,
-        context_class=context_class,
-        cache_logger_on_first_use=cache_logger_on_first_use,
-        initial_values=initial_values,
-        logger_factory_args=logger_factory_args,
-    )
+    pass
 
 
 def configure(
@@ -242,18 +228,7 @@ def configure(
 
     .. versionadded:: 0.3.0 *cache_logger_on_first_use*
     """
-    _CONFIG.is_configured = True
-
-    if processors is not None:
-        _CONFIG.default_processors = processors
-    if wrapper_class is not None:
-        _CONFIG.default_wrapper_class = wrapper_class
-    if context_class is not None:
-        _CONFIG.default_context_class = context_class
-    if logger_factory is not None:
-        _CONFIG.logger_factory = logger_factory
-    if cache_logger_on_first_use is not None:
-        _CONFIG.cache_logger_on_first_use = cache_logger_on_first_use
+    pass
 
 
 def configure_once(
@@ -272,18 +247,7 @@ def configure_once(
     Raises:
         RuntimeWarning: if repeated configuration is attempted.
     """
-    if not _CONFIG.is_configured:
-        configure(
-            processors=processors,
-            wrapper_class=wrapper_class,
-            context_class=context_class,
-            logger_factory=logger_factory,
-            cache_logger_on_first_use=cache_logger_on_first_use,
-        )
-    else:
-        warnings.warn(
-            "Repeated configuration attempted.", RuntimeWarning, stacklevel=2
-        )
+    pass
 
 
 def reset_defaults() -> None:
@@ -292,12 +256,7 @@ def reset_defaults() -> None:
 
     `is_configured` starts returning `False` afterwards.
     """
-    _CONFIG.is_configured = False
-    _CONFIG.default_processors = _BUILTIN_DEFAULT_PROCESSORS[:]
-    _CONFIG.default_wrapper_class = _BUILTIN_DEFAULT_WRAPPER_CLASS
-    _CONFIG.default_context_class = _BUILTIN_DEFAULT_CONTEXT_CLASS
-    _CONFIG.logger_factory = _BUILTIN_DEFAULT_LOGGER_FACTORY
-    _CONFIG.cache_logger_on_first_use = _BUILTIN_CACHE_LOGGER_ON_FIRST_USE
+    pass
 
 
 class BoundLoggerLazyProxy:
@@ -318,7 +277,7 @@ class BoundLoggerLazyProxy:
     # fulfill BindableLogger protocol without carrying accidental state
     @property
     def _context(self) -> dict[str, str]:
-        return self._initial_values
+        pass
 
     def __init__(
         self,
@@ -351,45 +310,7 @@ class BoundLoggerLazyProxy:
         """
         Assemble a new BoundLogger from arguments and configuration.
         """
-        if self._context_class:
-            ctx = self._context_class(self._initial_values)
-        else:
-            ctx = _CONFIG.default_context_class(self._initial_values)
-
-        _logger = self._logger
-        if not _logger:
-            _logger = _CONFIG.logger_factory(*self._logger_factory_args)
-
-        if self._processors is None:
-            procs = _CONFIG.default_processors
-        else:
-            procs = self._processors
-
-        cls = self._wrapper_class or _CONFIG.default_wrapper_class
-        # Looks like Protocols ignore definitions of __init__ so we have to
-        # silence Mypy here.
-        logger = cls(
-            _logger,
-            processors=procs,
-            context=ctx,  # type: ignore[call-arg]
-        )
-
-        def finalized_bind(**new_values: Any) -> BindableLogger:
-            """
-            Use cached assembled logger to bind potentially new values.
-            """
-            if new_values:
-                return logger.bind(**new_values)
-
-            return logger
-
-        if self._cache_logger_on_first_use is True or (
-            self._cache_logger_on_first_use is None
-            and _CONFIG.cache_logger_on_first_use is True
-        ):
-            self.bind = finalized_bind  # type: ignore[method-assign]
-
-        return finalized_bind(**new_values)
+        pass
 
     def unbind(self, *keys: str) -> BindableLogger:
         """
@@ -397,21 +318,16 @@ class BoundLoggerLazyProxy:
 
         In our case that could be only initial values.
         """
-        return self.bind().unbind(*keys)
+        pass
 
     def try_unbind(self, *keys: str) -> BindableLogger:
-        return self.bind().try_unbind(*keys)
+        pass
 
     def new(self, **new_values: Any) -> BindableLogger:
         """
         Clear context, then bind.
         """
-        if self._context_class:
-            self._context_class().clear()
-        else:
-            _CONFIG.default_context_class().clear()
-
-        return self.bind(**new_values)
+        pass
 
     def __getattr__(self, name: str) -> Any:
         """

@@ -33,19 +33,17 @@ from .typing import FilteringBoundLogger
 
 
 def _nop(self: Any, event: str, *args: Any, **kw: Any) -> Any:
-    return None
+    pass
 
 
 async def _anop(self: Any, event: str, *args: Any, **kw: Any) -> Any:
-    return None
+    pass
 
 
 def exception(
     self: FilteringBoundLogger, event: str, *args: Any, **kw: Any
 ) -> Any:
-    kw.setdefault("exc_info", True)
-
-    return self.error(event, *args, **kw)
+    pass
 
 
 async def aexception(
@@ -55,22 +53,7 @@ async def aexception(
     .. versionchanged:: 23.3.0
        Callsite parameters are now also collected under asyncio.
     """
-    # Exception info has to be extracted this early, because it is no longer
-    # available once control is passed to the executor.
-    if kw.get("exc_info", True) is True:
-        kw["exc_info"] = sys.exc_info()
-
-    scs_token = _ASYNC_CALLING_STACK.set(sys._getframe().f_back)  # type: ignore[arg-type]
-    ctx = contextvars.copy_context()
-    try:
-        runner = await asyncio.get_running_loop().run_in_executor(
-            None,
-            lambda: ctx.run(lambda: self.error(event, *args, **kw)),
-        )
-    finally:
-        _ASYNC_CALLING_STACK.reset(scs_token)
-
-    return runner
+    pass
 
 
 def make_filtering_bound_logger(
@@ -132,17 +115,7 @@ def _maybe_interpolate(event: str, args: tuple[Any, ...]) -> str:
     If there's exactly one argument and it's a mapping, use it for dict-based
     interpolation. Otherwise, use the arguments for positional interpolation.
     """
-    if not args:
-        return event
-
-    if (
-        len(args) == 1
-        and isinstance(args[0], collections.abc.Mapping)
-        and args[0]
-    ):
-        return event % args[0]
-
-    return event % args
+    pass
 
 
 def _make_filtering_bound_logger(min_level: int) -> type[FilteringBoundLogger]:
@@ -156,48 +129,10 @@ def _make_filtering_bound_logger(min_level: int) -> type[FilteringBoundLogger]:
     def make_method(
         level: int,
     ) -> tuple[Callable[..., Any], Callable[..., Any]]:
-        if level < min_level:
-            return _nop, _anop
-
-        name = LEVEL_TO_NAME[level]
-
-        def meth(self: Any, event: str, *args: Any, **kw: Any) -> Any:
-            return self._proxy_to_logger(
-                name, _maybe_interpolate(event, args), **kw
-            )
-
-        async def ameth(self: Any, event: str, *args: Any, **kw: Any) -> Any:
-            """
-            .. versionchanged:: 23.3.0
-               Callsite parameters are now also collected under asyncio.
-            """
-            event = _maybe_interpolate(event, args)
-
-            scs_token = _ASYNC_CALLING_STACK.set(sys._getframe().f_back)  # type: ignore[arg-type]
-            ctx = contextvars.copy_context()
-            try:
-                await asyncio.get_running_loop().run_in_executor(
-                    None,
-                    lambda: ctx.run(
-                        lambda: self._proxy_to_logger(name, event, **kw)
-                    ),
-                )
-            finally:
-                _ASYNC_CALLING_STACK.reset(scs_token)
-
-        meth.__name__ = name
-        ameth.__name__ = f"a{name}"
-
-        return meth, ameth
+        pass
 
     def log(self: Any, level: int, event: str, *args: Any, **kw: Any) -> Any:
-        if level < min_level:
-            return None
-        name = LEVEL_TO_NAME[level]
-
-        return self._proxy_to_logger(
-            name, _maybe_interpolate(event, args), **kw
-        )
+        pass
 
     async def alog(
         self: Any, level: int, event: str, *args: Any, **kw: Any
@@ -206,23 +141,7 @@ def _make_filtering_bound_logger(min_level: int) -> type[FilteringBoundLogger]:
         .. versionchanged:: 23.3.0
            Callsite parameters are now also collected under asyncio.
         """
-        if level < min_level:
-            return None
-        name = LEVEL_TO_NAME[level]
-        event = _maybe_interpolate(event, args)
-
-        scs_token = _ASYNC_CALLING_STACK.set(sys._getframe().f_back)  # type: ignore[arg-type]
-        ctx = contextvars.copy_context()
-        try:
-            runner = await asyncio.get_running_loop().run_in_executor(
-                None,
-                lambda: ctx.run(
-                    lambda: self._proxy_to_logger(name, event, **kw)
-                ),
-            )
-        finally:
-            _ASYNC_CALLING_STACK.reset(scs_token)
-        return runner
+        pass
 
     meths: dict[str, Callable[..., Any]] = {"log": log, "alog": alog}
     for lvl, name in LEVEL_TO_NAME.items():

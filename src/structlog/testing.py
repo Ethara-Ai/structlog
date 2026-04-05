@@ -80,24 +80,7 @@ def capture_logs(
     .. versionadded:: 20.1.0
     .. versionadded:: 25.5.0 *processors* parameter
     """
-    cap = LogCapture()
-    # Modify `_Configuration.default_processors` set via `configure` but always
-    # keep the list instance intact to not break references held by bound
-    # loggers.
-    configured_processors = get_config()["processors"]
-    old_processors = configured_processors.copy()
-    try:
-        # clear processors list and use LogCapture for testing
-        configured_processors.clear()
-        configured_processors.extend(processors)
-        configured_processors.append(cap)
-        configure(processors=configured_processors)
-        yield cap.entries
-    finally:
-        # remove LogCapture and restore original processors
-        configured_processors.clear()
-        configured_processors.extend(old_processors)
-        configure(processors=configured_processors)
+    pass
 
 
 class ReturnLogger:
@@ -118,11 +101,7 @@ class ReturnLogger:
         """
         Return tuple of ``args, kw`` or just ``args[0]`` if only one arg passed
         """
-        # Slightly convoluted for backwards compatibility.
-        if len(args) == 1 and not kw:
-            return args[0]
-
-        return args, kw
+        pass
 
     log = debug = info = warn = warning = msg
     fatal = failure = err = error = critical = exception = msg
@@ -193,7 +172,7 @@ class CapturingLogger:
         """
 
         def log(*args: Any, **kw: Any) -> None:
-            self.calls.append(CapturedCall(name, args, kw))
+            pass
 
         return log
 
